@@ -151,41 +151,18 @@ int less(Evento a, Evento b){
     return -1;
 }
 
-void sortMat(int mat[SIZE][SIZE], int n){ 
-
-    int temp[n * n]; 
-    int k = 0; 
-   
-    for (int i = 0; i < n; i++) 
-        for (int j = 0; j < n; j++) 
-            temp[k++] = mat[i][j]; 
-  
-    // sort temp[] 
-    sort(temp, temp + k); 
-      
-    // copy the elements of temp[] one by one 
-    // in mat[][] 
-    k = 0; 
-    for (int i = 0; i < n; i++) 
-        for (int j = 0; j < n; j++) 
-            mat[i][j] = temp[k++]; 
+void listaEventos(){
+    int i, e, vetoraux[1000], c = 0;
+    for (i = 0; i < MAX_SALA; i++){
+        for(e = 0; e < contador[i]; e++){
+            vetoraux[c] = evento[e][i];
+            c++;
+        }
+    }
+    
 } 
 
-/*void ordenaEventos(int sala){
-    int i, j;
-    Evento prox, aux;
-    for (i = 0; i < contador[sala]; i++){
-        prox = evento[sala][i];
-        j = i + 1;
-        while(j > 0 && less(prox, evento[sala][j]) != 0){
-            aux = prox;
-            evento[sala][j + 1] = evento[sala][j];
-            evento[sala][j - 1] = aux;
-            j--;
-        }
-        
-    }
-}*/
+
 
 void insertionSort(int sala, int n) { 
     int i, j;
@@ -246,9 +223,6 @@ void adicionaEvento(){
     }
 }
 
-int listaEventos(){
-    return 0;
-}
 
 int listaSalaEventos(){
     int sala, i, e;
