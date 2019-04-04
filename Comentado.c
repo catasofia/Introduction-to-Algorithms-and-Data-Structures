@@ -48,8 +48,8 @@ int verificaParticipantes(Evento novoEv);
 int verificaSala(Evento novoEv, int sala);
 int verificaErro(Evento novoEv, int sala);
 int less(Evento a, Evento b);
-void insertionSortSala(int sala, int n);
-void insertionSortMatriz(int tam);
+void ordenaEventosSala(int sala, int n);
+void ordenaTodosEventos(int tam);
 void listaEventos();
 int adicionaEvento(Evento NvEvento, int sala);
 void leInputEvento();
@@ -64,6 +64,7 @@ int adicionapartic();
 
 
 /*Codigo principal*/
+
 
 int main(){
     int i;
@@ -271,7 +272,7 @@ int less(Evento a, Evento b){
 
 
 
-void insertionSortSala(int sala, int n){
+void ordenaEventosSala(int sala, int n){
     /*Funcao que recebe uma sala e o numero de eventos desta e ordena os eventos
     por ordem cronologica
     Recorre a funcao less para verificar qual e o primeiro projeto a acontecer*/
@@ -290,7 +291,7 @@ void insertionSortSala(int sala, int n){
 
 
 
-void insertionSortMatriz(int tam){
+void ordenaTodosEventos(int tam){
     /*Funcao que recebe o numero total de eventos existentes e ordena todos por
     ordem cronologica recorrendo a funcao less para verificar qual o primeiro a acontecer*/
     int i, j;
@@ -318,7 +319,7 @@ void listaEventos(){
             c++;
         }
     }
-    insertionSortMatriz(c);
+    ordenaTodosEventos(c);
     for (j = 0; j < c; j++){
         printf("%s %02d%02d%d %04d %d Sala%d %s\n*", vetorSort[j].descricao, vetorSort[j].data.dia, vetorSort[j].data.mes,
         vetorSort[j].data.ano, vetorSort[j].inicio, vetorSort[j].duracao, vetorSort[j].sala, vetorSort[j].responsavel);
@@ -352,15 +353,16 @@ void leInputEvento(){
     char linhas[MAX_INPUT];
     Evento e;
     getchar();
-    fgets(linhas, MAX_INPUT, stdin);
+    fgets(linhas, MAX_INPUT, stdin); /*recebe o input dado*/
     token = strtok(linhas, ":");
     strcpy(e.descricao, token);
 
     token = strtok(NULL, ":");
     data = atoi(token);
-    e.data.ano = data % 10000;
-    e.data.mes = (data / 10000) % 100;
-    e.data.dia = data / 10000 / 100;
+
+    e.data.ano = data % 10000;  /*guarda o ano na estrutura*/
+    e.data.mes = (data / 10000) % 100; /*guarda o mes na estrutura*/
+    e.data.dia = data / 10000 / 100; /*guarda o dia na estrutua*/
 
     token = strtok(NULL, ":");
     e.inicio = atoi(token);
@@ -388,10 +390,12 @@ void leInputEvento(){
 
 
 int listaSalaEventos(){
+    /*funcao que lista os eventos, recorrendo a funcao ordenaEventosSala, por ordem
+    cronologica.*/
     int sala, i, e;
     scanf("%d", &sala);
-    sala--;
-    insertionSortSala(sala, contador[sala]);
+    sala--;/*Subtrai 1 a sala para comecar na posicao 0 do vetor*/
+    ordenaEventosSala(sala, contador[sala]);
     
     for(i = 0; i < contador[sala]; i++){
         printf("%s %02d%02d%d %04d %d Sala%d %s\n*", evento[sala][i].descricao, evento[sala][i].data.dia, 
@@ -408,17 +412,21 @@ int listaSalaEventos(){
 
 
 int apagaEvento(int sala, int indice){
+    /*Funcao que recebe uma sala e a posicao do evento a apagar e retorna o contador da sala*/
     int i;
     for(i = indice; i < contador[sala]; i++){
-        evento[sala][i] = evento[sala][i + 1];
+        evento[sala][i] = evento[sala][i + 1]; /*desloca os eventos a partir do indice recebido
+        para a posicao anterior*/
     }
-    contador[sala]--;
+    contador[sala]--; /*atualiza o contador*/
     return contador[sala];
 }
 
 
 
 int lerInputApagaEvento(){
+    /*Funcao que le o input dado e retorna 0 se for possivel apagar o evento e -1
+    se o evento nao existir*/
     int i, e;
     char descricao[MAX_STR], linhas[MAX_INPUT];
     char* token;
@@ -441,6 +449,7 @@ int lerInputApagaEvento(){
 
 
 int alteraHora(){
+    /*Funcao que altera hora de um evento se possivel, verificando as condicoes necessarias*/
     int i, e, NovoInicio, Inicio;
     char* token;
     char linhas[MAX_INPUT];
@@ -454,14 +463,16 @@ int alteraHora(){
     for(i = 0; i < MAX_SALA; i++){
         for(e = 0; e < contador[i]; e++){
             if (strcmp(NvEvento.descricao, evento[i][e].descricao) == 0){
-                Inicio = evento[i][e].inicio;
+                Inicio = evento[i][e].inicio; /*Guarda o inicio atual*/
                 EventoAux = evento[i][e];
                 apagaEvento(i, e);
                 EventoAux.inicio = NovoInicio;
-                if ((adicionaEvento(EventoAux, EventoAux.sala)) == 0){
+                if ((adicionaEvento(EventoAux, EventoAux.sala)) == 0){ /*Verifica as condicoes para adicionar um evento novo
+                com o novo inicio*/
                     return 0;
                 }
                 else{
+                    /*Nao e possivel adicionar o evento, logo volta a adicionar o evento com o inicio antigo*/
                     EventoAux.inicio = Inicio;
                     adicionaEvento(EventoAux, EventoAux.sala);
                     return -1;
@@ -469,13 +480,14 @@ int alteraHora(){
             }
         }
     }
-    printf("Evento %s inexistente.\n", NvEvento.descricao);
+    printf("Evento %s inexistente.\n", NvEvento.descricao); 
     return -1;
 }
 
 
 
 int alteraDuracao(){
+    /*Funcao que altera a duracao de um evento se possivel, verificando as condicoes necessarias*/
     int i, e, NovaDuracao, duracao;
     char* token;
     char linhas[MAX_INPUT];
@@ -489,14 +501,16 @@ int alteraDuracao(){
     for(i = 0; i < MAX_SALA; i++){
         for(e = 0; e < contador[i]; e++){
             if(strcmp(NvEvento.descricao, evento[i][e].descricao) == 0){
-                duracao = evento[i][e].duracao;
+                duracao = evento[i][e].duracao;/*guarda a duracao atual*/
                 EventoAux = evento[i][e];
                 apagaEvento(i, e);
                 EventoAux.duracao = NovaDuracao;
-                if(adicionaEvento(EventoAux, EventoAux.sala) == 0){
+                if(adicionaEvento(EventoAux, EventoAux.sala) == 0){/*Verifica as condicoes para adicionar o 
+                evento com a nova duracao*/
                     return 0;
                 }
                 else{
+                    /*Nao e possivel adicionar o evento com a nova duracao logo adiciona o evento com a duracao antiga*/
                     EventoAux.duracao = duracao;
                     adicionaEvento(EventoAux, EventoAux.sala);
                     return -1;
@@ -511,6 +525,7 @@ int alteraDuracao(){
 
 
 int mudaSala(){
+    /*Funcao que verifica as condicoes necessarias para alterar a sala de um evento existente*/
     int i, e, novaSala, SalaAntiga;
     char* token;
     char linhas[MAX_INPUT];
@@ -524,13 +539,15 @@ int mudaSala(){
     for(i = 0; i < MAX_SALA; i++){
         for(e = 0; e < contador[i]; e++){
             if(strcmp(NvEvento.descricao, evento[i][e].descricao) == 0){
-                SalaAntiga = evento[i][e].sala;
+                SalaAntiga = evento[i][e].sala;/*guarda a sala inicial*/
                 EventoAux = evento[i][e];
                 apagaEvento(i, e);
                 EventoAux.sala = novaSala;
-                if (adicionaEvento(EventoAux, novaSala) != 0){
+                if (adicionaEvento(EventoAux, novaSala) != 0){ /*Verifica as condicoes para adicionar um evento
+                com a nova sala*/
                     EventoAux.sala = SalaAntiga;
-                    adicionaEvento(EventoAux, EventoAux.sala);
+                    adicionaEvento(EventoAux, EventoAux.sala);/*se nao for possivel adicionar com a nova sala,
+                    adiciona com a sala antiga*/
                     return -1;
                 }
                 else{
@@ -546,6 +563,7 @@ int mudaSala(){
 
 
 int removepartic(){
+    /*Funcao que remove um participante de um participante, verificando se e possivel*/
     char participante[MAX_STR], linhas[MAX_INPUT];
     char* token;
     int i, e, j, c;
@@ -567,9 +585,10 @@ int removepartic(){
                         }
                         else{
                             for(c = j; c < evento[i][e].nParticipantes; c++){
-                                strcpy(evento[i][e].participantes[c],evento[i][e].participantes[c + 1]);
+                                strcpy(evento[i][e].participantes[c],evento[i][e].participantes[c + 1]); /*coloca, a partir do
+                                indice do participante removido, todos os participantes na posicao anterior*/
                             }
-                            evento[i][e].nParticipantes--;
+                            evento[i][e].nParticipantes--;/*atualiza o contador de participantes*/
                             return 0;
                         }
                     }
@@ -584,7 +603,8 @@ int removepartic(){
 
 
 int adicionapartic(){
-    char linhas[344], participante[MAX_STR];
+    /*Funcao que, verificando as condicoes necessarias, adiciona um novo participante a um evento*/
+    char linhas[MAX_INPUT], participante[MAX_STR];
     char* token;
     int i, e;
     Evento ev;
@@ -598,6 +618,7 @@ int adicionapartic(){
         for(e = 0; e < contador[i]; e++){
             if (strcmp(ev.descricao, evento[i][e].descricao) == 0){
                 if (evento[i][e].nParticipantes == 3){
+                    /*verifica se o numero de participantes e o maximo possivel*/
                     printf("Impossivel adicionar participante. Evento %s ja tem 3 participantes.\n", ev.descricao);
                     return -1;
                 }
@@ -605,6 +626,7 @@ int adicionapartic(){
                     evento[i][e].nParticipantes++;
                     strcpy(evento[i][e].participantes[evento[i][e].nParticipantes], participante);
                     if (verificaParticipantes(evento[i][e]) == 0){
+                        /*Possivel adicionar um novo participante*/
                         return 0;
                     }
                     else{
