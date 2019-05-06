@@ -8,17 +8,23 @@
 #define MAX_TELE 64
 
 
+
 int contador;
 
+typedef struct Email{
+    char local[MAX_EMAIL];
+    char dominio[MAX_EMAIL];
+}Email;
 
 typedef struct Contacto{
     char nome[MAX_NOME];
-    char email[MAX_EMAIL];
+    Email email;
     char telefone[MAX_TELE];
 }Contacto;
 
 typedef struct Node{
     Contacto Contacto;
+    Email Email;
     struct Node *next;
 }Node;
 
@@ -41,11 +47,11 @@ int verifica_nome(char nomeprocura[MAX_NOME]){
 
 
 
-verifica_mail(char dominio[MAX_EMAIL]){
+int verifica_mail(char dominio[MAX_EMAIL]){
     int contaocorrencia = 0;
     Node *temp = head;
     while(temp != NULL){
-        if(strcmp(temp->Contacto.email, dominio) == 0){
+        if(strcmp(temp->Email.dominio, dominio) == 0){
             contaocorrencia++;
         }
         temp = temp->next;
@@ -54,22 +60,24 @@ verifica_mail(char dominio[MAX_EMAIL]){
 }
 
 
-
-char separa_email(char mail[MAX_EMAIL]){
-    char *token, dominio[MAX_EMAIL];
-    token = strtok(mail, "@");
-    token = strtok(NULL, "\n");
-    strcpy(dominio, token);
-    return dominio;
+struct Node *encontra_contacto(char nome[MAX_EMAIL]){
+    Node *temp = head;
+    while(temp != NULL){
+        if(strcmp(temp->Contacto.nome, nome) == 0){
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
 }
 
 
-
-void adiciona_contacto(char nome[MAX_NOME], char email[MAX_EMAIL], char telefone[MAX_TELE]){
+void adiciona_contacto(char nome[MAX_NOME], char local[MAX_EMAIL], char dominio[MAX_EMAIL],char telefone[MAX_TELE]){
     Node *temp;
     struct Node *lista = (struct Node*) malloc(sizeof(struct Node));
     strcpy(lista->Contacto.nome, nome);
-    strcpy(lista->Contacto.email, email);
+    strcpy(lista->Email.local, local);
+    strcpy(lista->Email.dominio, dominio);
     strcpy(lista->Contacto.telefone, telefone);
     lista->next = NULL;
     if (head == NULL){
@@ -87,12 +95,16 @@ void adiciona_contacto(char nome[MAX_NOME], char email[MAX_EMAIL], char telefone
 
 
 void comando_a(){
-    char nome[MAX_NOME], email[MAX_EMAIL], telefone[MAX_TELE];
+    char *token;
+    char nome[MAX_NOME], email[MAX_EMAIL], local[MAX_EMAIL], dominio[MAX_EMAIL], telefone[MAX_TELE];
     scanf("%s %s %s", nome, email, telefone);
+    token = strtok(email, "@");
+    strcpy(local, token);
+    token = strtok(NULL, "\n");
+    strcpy(dominio, token);
     if (verifica_nome(nome) == 0){
         contador++;
-        adiciona_contacto(nome, email, telefone);
-        separa_email(email);
+        adiciona_contacto(nome, local, dominio, telefone);
     }
     else{
         printf("Nome existente.\n");
@@ -104,34 +116,68 @@ void comando_a(){
 void comando_l(){
     struct Node *contactos = head;
    while(contactos != NULL) {        
-      printf("%s %s %s\n",contactos->Contacto.nome, contactos->Contacto.email, contactos->Contacto.telefone);
+      printf("%s %s@%s %s\n",contactos->Contacto.nome, contactos->Email.local, contactos->Email.dominio, contactos->Contacto.telefone);
       contactos = contactos->next;
    }
 } 
 
 
 
-/* 
+
 void comando_p(){
     char nome[MAX_NOME];
+    Node *contacto;
     scanf("%s", nome);
     if (verifica_nome(nome) == 0){
         printf("Nome inexistente.\n");
     }
     else{
-
+        contacto = encontra_contacto(nome);
+        printf("%s %s@%s %s\n", contacto->Contacto.nome, contacto->Email.local, contacto->Email.dominio, contacto->Contacto.telefone);
     }
 }
- */
+ 
 
 void comando_c(){
     int nr;
-    char mail[MAX_EMAIL], dominio[MAX_EMAIL];
-    scanf("%s", mail);
-    dominio = separa_email(mail);
-    nr = verifica_mail()
+    char dominio[MAX_EMAIL];
+    scanf("%s", dominio);
+    nr = verifica_mail(dominio);
+    printf("%s:%d\n", dominio, nr);
 }
 
+
+void comando_r(){
+    char nome[MAX_NOME];
+    Node *contacto;
+    scanf("%s", nome);
+    if(verifica_nome(nome) == 0){
+        printf("Nome inexistente.\n");
+    }
+    else{
+        contacto = encontra_contacto(nome);
+        
+    }
+} 
+
+void comando_e(){
+    char nome[MAX_NOME], novomail[MAX_EMAIL], novolocal[MAX_EMAIL], novodominio[MAX_EMAIL];
+    char *token;
+    Node *contacto;
+    scanf("%s %s", nome, novomail);
+    if (verifica_nome(nome) == 0){
+        printf("Nome inexistente.\n");
+    }
+    else{
+        token = strtok(novomail, "@");
+        strcpy(novolocal, token);
+        token = strtok(NULL, "\n");
+        strcpy(novodominio, token);
+        contacto = encontra_contacto(nome);
+        strcpy(contacto->Email.local, novolocal);
+        strcpy(contacto->Email.dominio, novodominio);
+    }
+}
 
 void inicializar(){
     head = NULL;
@@ -154,18 +200,18 @@ int main(){
             case 'l':
                 comando_l();
                 break;
-            /*case 'p':
+            case 'p':
                 getchar();
                 comando_p();
                 break;
-            case 'r':
+            /* case 'r':
                 getchar();
                 comando_r();
-                break;
+                break; */
             case 'e':
                 getchar();
                 comando_e();
-                break;*/
+                break;
             case 'c':
                 getchar();
                 comando_c();
