@@ -6,7 +6,7 @@
 #define MAX_NOME 1024
 #define MAX_EMAIL 512
 #define MAX_TELE 64
-
+#define MAX_HASH 1031
 
 
 int contador;
@@ -26,6 +26,7 @@ typedef struct Node{
     Contacto Contacto;
     Email Email;
     struct Node *next;
+    
 }Node;
 
 
@@ -147,16 +148,30 @@ void comando_c(){
 }
 
 
+void remove_contacto(char nomeprocura[MAX_NOME]){
+    struct Node *temp = head, *prev;
+    if (strcmp(temp->Contacto.nome, nomeprocura) == 0){
+        head = temp->next;
+        free(temp);
+        return;
+    }
+
+    while (strcmp(temp->Contacto.nome, nomeprocura) != 0){
+        prev = temp;
+        temp = temp->next;
+    }
+    prev->next = temp->next;
+    free(temp);
+}
+
 void comando_r(){
     char nome[MAX_NOME];
-    Node *contacto;
     scanf("%s", nome);
     if(verifica_nome(nome) == 0){
         printf("Nome inexistente.\n");
     }
     else{
-        contacto = encontra_contacto(nome);
-        
+        remove_contacto(nome);
     }
 } 
 
@@ -204,10 +219,10 @@ int main(){
                 getchar();
                 comando_p();
                 break;
-            /* case 'r':
+            case 'r':
                 getchar();
                 comando_r();
-                break; */
+                break; 
             case 'e':
                 getchar();
                 comando_e();
