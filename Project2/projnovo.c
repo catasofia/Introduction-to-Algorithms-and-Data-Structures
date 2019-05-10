@@ -1,9 +1,9 @@
 
-/*---------------------------------------------------\ 
-|           Catarina Sofia dos Santos Sousa          |
-|                        N.93695                     |
-|           Sistema de gestao de contactos           |    
-\---------------------------------------------------*/
+/*------------------------------------------------------\ 
+|            Catarina Sofia dos Santos Sousa            |
+|                        N.93695                        |
+|            Sistema de gestao de contactos             |    
+\------------------------------------------------------*/
 
 
 #include <stdio.h>
@@ -34,17 +34,60 @@ typedef struct Node{
 }Node;
 
 
+
 Node *head;
+Node *tabela[MAX_HASH];
+
+
+struct Node *procura_contacto(char *nome, int posicao){
+    if(tabela[posicao] != NULL){
+        Node *temp = tabela[posicao];
+        printf("%s", temp->Contacto->nome);
+        if (strcmp(nome, temp->Contacto->nome) == 0){
+            return temp;
+        }
+        while(temp->next != NULL){
+            if (strcmp(temp->Contacto->nome, nome) == 0){
+                printf("ola\n");
+                return temp;
+            }
+            temp = temp->next;        
+        }
+    }
+    return NULL;
+}
+
+
+
 
 int hash(char *string){
     int h, a = 31415, b = 27183;
     for(h = 0; *string != '\0'; string++, a = a*b % (MAX_HASH-1)){
         h = (a * h + *string) % MAX_HASH;
     }
+
     return h;
 }
 
+
+
+void insere_tabela(int posicao, struct Node *contacto){
+    if (tabela[posicao] == NULL){
+        tabela[posicao] = contacto;
+    }
+    else{
+        Node *aux = tabela[posicao];
+        while(aux->next != NULL){
+            aux = aux->next;
+        }
+        aux->next = contacto;
+    }
+}
+
+
+
 void adiciona_contacto(char *nome, char *local, char *dominio, char *telefone){
+    int valorhash;
     Node *temp;
     struct Node *lista = (struct Node*) malloc(sizeof(struct Node));
     lista->Contacto = (Contacto) malloc(sizeof(Contacto));
@@ -68,8 +111,9 @@ void adiciona_contacto(char *nome, char *local, char *dominio, char *telefone){
         }
         temp->next = lista;
     }
+    valorhash = hash(nome);
+    insere_tabela(valorhash, temp);
 }
-
 
 
 
@@ -97,18 +141,41 @@ void comando_a(){
 
 void comando_l(){
     struct Node *contactos = head;
-   while(contactos != NULL) {        
-      printf("%s %s@%s %s\n",contactos->Contacto->nome, contactos->Email->local,
-      contactos->Email->dominio, contactos->Contacto->telefone);
-      contactos = contactos->next;
-   }
+    while(contactos != NULL){        
+        printf("%s %s@%s %s\n",contactos->Contacto->nome, contactos->Email->local,
+        contactos->Email->dominio, contactos->Contacto->telefone);
+        contactos = contactos->next;
+    }
 } 
+
+
+
+void comando_p(){
+    int valorhash;
+    char nome[MAX_NOME];
+    char *nomeprocura;
+    Node *temp;
+    scanf("%s", nome);
+    nomeprocura = (char *) malloc(sizeof(char*) * (strlen(nome) + 1));
+    valorhash = hash(nomeprocura);
+    printf("%d\n", valorhash);
+    temp = procura_contacto(nomeprocura, valorhash);
+    if(temp != NULL){
+        printf("%s %s@%s %s\n", temp->Contacto->nome, temp->Email->local, 
+        temp->Email->dominio, temp->Contacto->telefone);
+    }
+    else{
+        printf("Nome inexistente.\n");
+    }
+}
 
 
 
 void inicializar(){
     head = NULL;
 }
+
+
 
 int main(){
     char comando;
@@ -123,11 +190,11 @@ int main(){
             case 'l':
                 comando_l();
                 break;
-            /*case 'p':
+            case 'p':
                 getchar();
                 comando_p();
                 break;
-            case 'r':
+            /*case 'r':
                 getchar();
                 comando_r();
                 break;
