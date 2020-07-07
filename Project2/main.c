@@ -505,22 +505,3 @@ void comando_c(){
 
 
 
-
-
-/*-------->>>FUNCAO QUE TENTEI FAZER SEM PERCORRER A LISTA LIGADA TODA<<<--------*/
-/* void comando_c(){
-    int keydominio, nr;
-    char dominio[MAX_NOME];
-    char *dominioprocura;
-    
-    scanf("%s", dominio);
-    dominioprocura = (char *) malloc(sizeof(char*) * (strlen(dominio) + 1));
-    strcpy(dominioprocura, dominio);
-    
-    keydominio = hash(dominioprocura);
-    nr = conta_ocorrencias(dominioprocura, keydominio);
-    printf("%s:%d\n", dominioprocura, nr);
-    free(dominioprocura);
-} */
-
-
